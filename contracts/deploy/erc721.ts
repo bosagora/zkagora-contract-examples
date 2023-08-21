@@ -19,7 +19,7 @@ if (!RECIPIENT_ADDRESS)
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the MyNFT contract...`);
-  const provider = new Provider("https://testnet.era.zksync.dev");
+  const provider = new Provider("http://localhost:3050");
 
   // The wallet that will deploy the token and the paymaster
   // It is assumed that this wallet already has sufficient funds on zkSync
