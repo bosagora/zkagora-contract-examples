@@ -6,44 +6,50 @@ import "@matterlabs/hardhat-zksync-verify";
 import "@nomiclabs/hardhat-etherscan";
 
 // dynamically changes endpoints for local tests
-const zkSyncTestnet =
-  process.env.NODE_ENV == "test"
-    ? {
-        url: "http://localhost:3050",
-        ethNetwork: "http://localhost:8545",
-        zksync: true,
-        // Verification endpoint for Goerli
-        verifyURL:
-          "https://zksync2-testnet-explorer.zksync.dev/contract_verification",
-      }
-    : {
-        url: "https://zksync2-testnet.zksync.dev",
-        ethNetwork: "goerli",
-        zksync: true,
-        // Verification endpoint for Goerli
-        verifyURL:
-          "https://zksync2-testnet-explorer.zksync.dev/contract_verification",
-      };
+// const zkSyncTestnet =
+//   process.env.NODE_ENV == "test"
+//     ? {
+//         url: "http://localhost:3050",
+//         ethNetwork: "http://localhost:8545",
+//         zksync: true,
+//         // Verification endpoint for Goerli
+//         verifyURL:
+//           "https://zksync2-testnet-explorer.zksync.dev/contract_verification",
+//       }
+//     : {
+//         url: "https://zksync2-testnet.zksync.dev",
+//         ethNetwork: "goerli",
+//         zksync: true,
+//         // Verification endpoint for Goerli
+//         verifyURL:
+//           "https://zksync2-testnet-explorer.zksync.dev/contract_verification",
+//       };
 
 const config: HardhatUserConfig = {
   zksolc: {
     version: "latest", // can be defined like 1.3.x
     settings: {},
   },
-  defaultNetwork: "zkSyncTestnet",
+  defaultNetwork: "zkSyncLocal",
   networks: {
     hardhat: {
       zksync: false,
     },
-<<<<<<< HEAD
-    zkSyncTestnet : {
-        url: "http://localhost:3050",
-        ethNetwork: "http://localhost:8545",
-        zksync: true,
+    localnet: {
+      url: "http://localhost:8545",
+      zksync: false, // Set to false to target other networks.
     },
-=======
-    zkSyncTestnet,
->>>>>>> parent of e4b5286 (change networks)
+    zkSyncLocal: {
+      // you should run the "matter-labs/local-setup" first
+      url: "http://localhost:3050",
+      ethNetwork: "http://localhost:8545",
+      zksync: true,
+    },
+    zkSyncEraTestnet: {
+      url: "https://testnet.era.zksync.dev", // you should use the URL of the zkSync network RPC
+      ethNetwork: "goerli",
+      zksync: true,
+    },
   },
   solidity: {
     version: "0.8.17",
