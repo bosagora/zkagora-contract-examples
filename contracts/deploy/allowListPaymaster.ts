@@ -15,7 +15,7 @@ if (!PRIVATE_KEY)
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the AllowlistPaymaster contract...`);
-  const provider = new Provider("http://localhost:3050");
+  const provider = new Provider("https://testnet.era.zksync.dev");
 
   // The wallet that will deploy the token and the paymaster
   // It is assumed that this wallet already has sufficient funds on zkSync
@@ -47,17 +47,17 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   // Verify contract programmatically
   //
   // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-  const contractFullyQualifedName =
-    "contracts/paymasters/AllowlistPaymaster.sol:AllowlistPaymaster";
-  const verificationId = await hre.run("verify:verify", {
-    address: paymaster.address,
-    contract: contractFullyQualifedName,
-    constructorArguments: [],
-    bytecode: paymasterArtifact.bytecode,
-  });
-  console.log(
-    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
-  );
+  // const contractFullyQualifedName =
+  //   "contracts/paymasters/AllowlistPaymaster.sol:AllowlistPaymaster";
+  // const verificationId = await hre.run("verify:verify", {
+  //   address: paymaster.address,
+  //   contract: contractFullyQualifedName,
+  //   constructorArguments: [],
+  //   bytecode: paymasterArtifact.bytecode,
+  // });
+  // console.log(
+  //   `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+  // );
 
-  console.log(`Done!`);
+  console.log(`Done!\n\n`);
 }

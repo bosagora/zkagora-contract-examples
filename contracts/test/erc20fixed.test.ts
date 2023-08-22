@@ -94,15 +94,6 @@ describe("ERC20fixedPaymaster", function () {
     const finalUserTokenBalance = await token.balanceOf(userWallet.address);
     const finalPaymasterBalance = await provider.getBalance(paymaster.address);
 
-    console.log('userInitialTokenBalance :', userInitialTokenBalance);
-    console.log('finalUserTokenBalance :', finalUserTokenBalance);
-    console.log("----------------");
-    console.log('userInitialETHBalance :', userInitialETHBalance);
-    console.log('finalETHBalance :', finalETHBalance);
-    console.log("----------------");
-    console.log('userInitialTokenBalance :', userInitialTokenBalance);
-    console.log('finalUserTokenBalance :', finalUserTokenBalance);
-
     expect(await greeter.greet()).to.equal("Hola, mundo!");
     expect(initialPaymasterBalance.gt(finalPaymasterBalance)).to.be.true;
     expect(userInitialETHBalance).to.eql(finalETHBalance);

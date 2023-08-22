@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // load contract artifact. Make sure to compile first!
-import * as ContractArtifact from "../artifacts-zk/contracts/Greeter.sol/Greeter.json";
+import * as ContractArtifact from "../artifacts-zk/contracts/utils/Greeter.sol/Greeter.json";
 
 const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "";
 
@@ -15,7 +15,7 @@ if (!PRIVATE_KEY)
   throw "⛔️ Private key not detected! Add it to the .env file!";
 
 // Address of the contract on zksync testnet
-const CONTRACT_ADDRESS = "";
+const CONTRACT_ADDRESS = process.env.GREETER_ADDRESS;
 
 if (!CONTRACT_ADDRESS) throw "⛔️ Contract address not provided";
 
