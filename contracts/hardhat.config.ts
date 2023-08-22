@@ -35,14 +35,15 @@ const config: HardhatUserConfig = {
     hardhat: {
       zksync: false,
     },
+<<<<<<< HEAD
     zkSyncTestnet : {
         url: "http://localhost:3050",
         ethNetwork: "http://localhost:8545",
         zksync: true,
-        // Verification endpoint for Goerli
-        verifyURL:
-            "https://zksync2-testnet-explorer.zksync.dev/contract_verification",
     },
+=======
+    zkSyncTestnet,
+>>>>>>> parent of e4b5286 (change networks)
   },
   solidity: {
     version: "0.8.17",

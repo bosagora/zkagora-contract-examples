@@ -10,7 +10,7 @@ dotenv.config();
 // load wallet private key from env file
 const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "";
 // The address of the NFT collection contract
-const NFT_COLLECTION_ADDRESS = "ADDRESS_OF_NFT_COLLECTION_CONTRACT";
+const NFT_COLLECTION_ADDRESS = process.env.NFT_COLLECTION_ADDRESS || "";
 
 if (!PRIVATE_KEY)
   throw "⛔️ Private key not detected! Add it to the .env file!";
@@ -20,7 +20,7 @@ if (!NFT_COLLECTION_ADDRESS)
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the ERC721gatedPaymaster contract...`);
-  const provider = new Provider("http://localhost:3050");
+  const provider = new Provider("https://testnet.era.zksync.dev");
 
   // The wallet that will deploy the token and the paymaster
   // It is assumed that this wallet already has sufficient funds on zkSync
@@ -55,17 +55,17 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   // Verify contract programmatically
   //
   // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-  const contractFullyQualifedName =
-    "contracts/paymasters/ERC721gatedPaymaster.sol:ERC721gatedPaymaster";
-  const verificationId = await hre.run("verify:verify", {
-    address: paymaster.address,
-    contract: contractFullyQualifedName,
-    constructorArguments: [NFT_COLLECTION_ADDRESS],
-    bytecode: paymasterArtifact.bytecode,
-  });
-  console.log(
-    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
-  );
+  // const contractFullyQualifedName =
+  //   "contracts/paymasters/ERC721gatedPaymaster.sol:ERC721gatedPaymaster";
+  // const verificationId = await hre.run("verify:verify", {
+  //   address: paymaster.address,
+  //   contract: contractFullyQualifedName,
+  //   constructorArguments: [NFT_COLLECTION_ADDRESS],
+  //   bytecode: paymasterArtifact.bytecode,
+  // });
+  // console.log(
+  //   `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+  // );
 
-  console.log(`Done!`);
+  console.log(`Done!\n\n`);
 }

@@ -10,7 +10,7 @@ dotenv.config();
 // load wallet private key from env file
 const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "";
 // The address of the token contract
-const TOKEN_ADDRESS = "TOKEN_ADDRESS";
+const TOKEN_ADDRESS = process.env.TOKEN_ADDRESS;
 
 if (!PRIVATE_KEY)
   throw "⛔️ Private key not detected! Add it to the .env file!";
@@ -20,12 +20,12 @@ if (!TOKEN_ADDRESS)
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the ERC20fixedPaymaster contract...`);
-  const provider = new Provider("http://localhost:3050");
+  const provider = new Provider("https://testnet.era.zksync.dev");
   // The wallet that will deploy the token and the paymaster
   // It is assumed that this wallet already has sufficient funds on zkSync
   const wallet = new Wallet(PRIVATE_KEY);
   const deployer = new Deployer(hre, wallet);
-
+  console.log('TOKEN_ADDRESS :', TOKEN_ADDRESS);
   // Deploying the paymaster
   const paymasterArtifact = await deployer.loadArtifact("ERC20fixedPaymaster");
   const deploymentFee = await deployer.estimateDeployFee(paymasterArtifact, [
@@ -52,17 +52,17 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   // Verify contract programmatically
   //
   // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-  const contractFullyQualifedName =
-    "contracts/paymasters/ERC20fixedPaymaster.sol:ERC20fixedPaymaster";
-  const verificationId = await hre.run("verify:verify", {
-    address: paymaster.address,
-    contract: contractFullyQualifedName,
-    constructorArguments: [TOKEN_ADDRESS],
-    bytecode: paymasterArtifact.bytecode,
-  });
-  console.log(
-    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
-  );
+  // const contractFullyQualifedName =
+  //   "contracts/paymasters/ERC20fixedPaymaster.sol:ERC20fixedPaymaster";
+  // const verificationId = await hre.run("verify:verify", {
+  //   address: paymaster.address,
+  //   contract: contractFullyQualifedName,
+  //   constructorArguments: [TOKEN_ADDRESS],
+  //   bytecode: paymasterArtifact.bytecode,
+  // });
+  // console.log(
+  //   `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+  // );
 
-  console.log(`Done!`);
+  console.log(`Done!\n\n`);
 }

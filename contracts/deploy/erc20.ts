@@ -10,7 +10,7 @@ dotenv.config();
 // load wallet private key from env file
 const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY || "";
 // We will mint the NFTs to this address
-const RECIPIENT_ADDRESS = "RECIPIENT_ADDRESS";
+const RECIPIENT_ADDRESS = process.env.RECIPIENT_ADDRESS || "";
 
 if (!PRIVATE_KEY)
   throw "⛔️ Private key not detected! Add it to the .env file!";
@@ -20,7 +20,7 @@ if (!RECIPIENT_ADDRESS)
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the MyERC20 contract...`);
-  const provider = new Provider("http://localhost:3050");
+  const provider = new Provider("https://testnet.era.zksync.dev");
 
   // The wallet that will deploy the token and the paymaster
   // It is assumed that this wallet already has sufficient funds on zkSync
@@ -45,7 +45,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
     decimals,
   ]);
   console.log(`Token contract address: ${tokenContract.address}`);
-
+  process.env['TOKEN_ADDRESS'] = tokenContract.address;
   // Mint token to the recipient address
   const amount = ethers.utils.parseEther("100");
   const tx = await tokenContract.mint(RECIPIENT_ADDRESS, amount);
@@ -59,16 +59,16 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   // Verify contract programmatically
   //
   // Contract MUST be fully qualified name (e.g. path/sourceName:contractName)
-  const contractFullyQualifedName = "contracts/token/ERC20.sol:MyERC20";
-  const verificationId = await hre.run("verify:verify", {
-    address: tokenContract.address,
-    contract: contractFullyQualifedName,
-    constructorArguments: [name, symbol, decimals],
-    bytecode: tokenContractArtifact.bytecode,
-  });
-  console.log(
-    `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
-  );
+  // const contractFullyQualifedName = "contracts/token/ERC20.sol:MyERC20";
+  // const verificationId = await hre.run("verify:verify", {
+  //   address: tokenContract.address,
+  //   contract: contractFullyQualifedName,
+  //   constructorArguments: [name, symbol, decimals],
+  //   bytecode: tokenContractArtifact.bytecode,
+  // });
+  // console.log(
+  //   `${contractFullyQualifedName} verified! VerificationId: ${verificationId}`,
+  // );
 
-  console.log(`Done!`);
+  console.log(`Done!\n\n`);
 }
