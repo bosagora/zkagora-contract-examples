@@ -6,13 +6,14 @@
   "author": "Evan <youngsoo.jung@bosagora.io>",
   "license": "MIT",
   "private": true,
-  "workspaces": ["contracts", "frontend"],
+  "workspaces": ["contracts", "frontend", "l1_contracts"],
   "devDependencies": {    
     "prettier": "^2.8.8"
   },
   "scripts": {
     "test:contracts": "yarn workspace contracts test",
     "deploy:contracts": "yarn workspace contracts deploy", 
+    "deploy:l1_contracts": "yarn workspace l1_contracts deploy",
     "compile:contracts": "yarn workspace contracts compile",
     "deploy:greeter": "yarn workspace contracts greeter",
     "deploy:gasless": "yarn workspace contracts gasless",
