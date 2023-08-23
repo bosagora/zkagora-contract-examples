@@ -5,6 +5,7 @@ import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
 
 // load env file
 import dotenv from "dotenv";
+import {HttpNetworkConfig} from "hardhat/src/types/config";
 dotenv.config();
 
 // load wallet private key from env file
@@ -15,7 +16,7 @@ if (!PRIVATE_KEY)
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the AllowlistPaymaster contract...`);
-  const provider = new Provider("https://testnet.era.zksync.dev");
+  const provider = new Provider(((hre.config.networks.zkSyncLocal) as HttpNetworkConfig).url)
 
   // The wallet that will deploy the token and the paymaster
   // It is assumed that this wallet already has sufficient funds on zkSync
@@ -40,6 +41,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
       value: ethers.utils.parseEther("0.005"),
     })
   ).wait();
+
 
   let paymasterBalance = await provider.getBalance(paymaster.address);
   console.log(`Paymaster ETH balance is now ${paymasterBalance.toString()}`);

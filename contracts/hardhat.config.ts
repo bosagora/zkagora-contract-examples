@@ -5,6 +5,8 @@ import "@matterlabs/hardhat-zksync-solc";
 import "@matterlabs/hardhat-zksync-verify";
 import "@nomiclabs/hardhat-etherscan";
 
+import "@nomicfoundation/hardhat-chai-matchers";
+
 // dynamically changes endpoints for local tests
 // const zkSyncTestnet =
 //   process.env.NODE_ENV == "test"
@@ -28,7 +30,9 @@ import "@nomiclabs/hardhat-etherscan";
 const config: HardhatUserConfig = {
   zksolc: {
     version: "latest", // can be defined like 1.3.x
-    settings: {},
+    settings: {
+      isSystem: true, // make sure to include this line
+    },
   },
   defaultNetwork: "zkSyncLocal",
   networks: {

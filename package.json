@@ -6,7 +6,7 @@
   "author": "Evan <youngsoo.jung@bosagora.io>",
   "license": "MIT",
   "private": true,
-  "workspaces": ["contracts", "frontend", "l1_contracts"],
+  "workspaces": ["contracts", "frontend"],
   "devDependencies": {    
     "prettier": "^2.8.8"
   },
