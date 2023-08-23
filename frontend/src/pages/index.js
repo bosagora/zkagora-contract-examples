@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { utils, Contract } from "zksync-web3";
+import React, {useState, useEffect, useMemo, useCallback} from "react";
+import { utils, Contract, Wallet } from "zksync-web3";
 import { ethers } from "ethers";
 import useWeb3 from "../hooks/useWeb3";
+import useAA from "../hooks/useAA";
 import useAccountChanges from "../hooks/useAccountChanges";
 import Greeting from "../components/Greeting";
 import Input from "../components/Input";
 import Loading from "../components/Spinner";
 import Button from "@/components/Button";
+import AATitle from "@/components/AATitle";
 import Title from "@/components/Title";
 import ContractDropdown from "@/components/Dropdown";
 import TxDetails from "@/components/TxDetails";
@@ -18,7 +20,7 @@ import {
   ERC20_GATED_PAYMASTER,
   ERC721_GATED_PAYMASTER,
   GASLESS_PAYMASTER,
-  ALLOWLIST_PAYMASTER,
+  ALLOWLIST_PAYMASTER, AAFACTORY_CONTRACT_ABI,
 } from "../constants/consts";
 import InstructionsCard from "@/components/InstructionsCard";
 
@@ -41,7 +43,73 @@ const Home = () => {
   const [txDetails, setTxDetails] = useState(null);
   const [qualify, isQualify] = useState("");
   const { provider, signer, setProvider, setSigner, signerBalance } = useWeb3();
+  const { aaInfo } = useAA(provider, signer);
+  const [aa, setAA] = useState(false);
+  const [signerAddress, setSignerAddress] = useState('');
   const [loading, setLoading] = useState(true);
+  aaInfo()
+      .then(aa => {
+        console.log('aaInfo :', aa);
+        if(aa.err){
+          console.log('aa.err:', aa.err);
+          setAA(false);
+        }
+        else {setAA(true)}
+      });
+
+
+  const getSignerAddress = useCallback(
+      async (signer) => {
+        const address = signer ? await signer.getAddress() : '';
+        return address;
+      }, [signer]);
+
+  getSignerAddress(signer).then(address=>{
+    setSignerAddress(address);
+  });
+
+  const createAA = async (provider, signer)=> {
+    if( !provider || !signer) {
+      console.log("null provider or signer")
+      return;
+    }
+
+    const owner = new Wallet("0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110", provider);
+
+    const aaFactory = new ethers.Contract(
+        '0x094499Df5ee555fFc33aF07862e43c90E6FEe501',
+        AAFACTORY_CONTRACT_ABI,
+        owner
+    );
+    console.log('signer :', signer)
+    console.log('aaFactory :', aaFactory);
+    console.log('signerAddress :', signerAddress);
+    const salt = ethers.constants.HashZero;
+    const tx = await aaFactory.deployAccount(salt, signerAddress);
+    const receipt = await tx.wait();
+    console.log('receipt :', receipt);
+
+    const abiCoder = new ethers.utils.AbiCoder();
+    const accountAddress = utils.create2Address(aaFactory.address, await aaFactory.aaBytecodeHash(), salt, abiCoder.encode(["address"], [signerAddress]));
+
+    console.log(`SC Account deployed on address ${accountAddress}`);
+
+    console.log("Funding smart contract account with some ETH");
+    await (
+        await owner.sendTransaction({
+          to: accountAddress,
+          value: ethers.utils.parseEther("50"),
+        })
+    ).wait();
+    console.log(`Done!`);
+    return 'success'
+
+  }
+
+  const handleCreateAA = async () => {
+    const ret = await createAA(provider, signer);
+    console.log('create AA > ret :', ret);
+  }
 
   // Handler to manage Paymaster selection
   const handlePaymasterChange = (event) => {
@@ -210,6 +278,26 @@ const Home = () => {
 
   return (
     <div className="flex flex-col min-h-screen py-2 mb-10">
+      <AATitle />
+      {aa ? `aa owner: ${signerAddress} address: ${signerAddress}` : (<div className="flex flex-row">
+        <Input
+            placeholder="Greeter contract address 0x..."
+            title="Enter Greeter contract address"
+            className="mt-10 ml-8"
+            value={signerAddress}
+            onChange={(e) => setSignerAddress(e.target.value)}
+        />
+        <Button
+            className="mt-16"
+            onClick={async () => await handleCreateAA()}
+        >
+          Create New Account
+        </Button>
+      </div>
+      ) }
+      <div className="mt-8 mx-8 max-w-fit">
+
+      </div>
       <Title />
       <div className="mt-8 mx-8 max-w-fit">
         <InstructionsCard />
