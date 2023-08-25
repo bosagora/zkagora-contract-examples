@@ -39,8 +39,8 @@ before(async () => {
     await (await account.changeONE_DAY(SLEEP_TIME)).wait()
 })
 
-describe.only("Deployment, Setup & Transfer", function () {
-    it.only("Should deploy contracts, send ETH, and set varible correctly", async function () {
+describe("Deployment, Setup & Transfer", function () {
+    it("Should deploy contracts, send ETH, and set varible correctly", async function () {
         expect(await provider.getBalance(account.address)).to.eql(toBN("100"))
         expect((await account.ONE_DAY()).toNumber()).to.equal(SLEEP_TIME)
 
@@ -49,7 +49,7 @@ describe.only("Deployment, Setup & Transfer", function () {
         await consoleAddreses(wallet, factory, account, user)
     })
 
-    it.only("Set Limit: Should add ETH spendinglimit correctly", async function () {
+    it("Set Limit: Should add ETH spendinglimit correctly", async function () {
         let tx = await account.populateTransaction.setSpendingLimit(ETH_ADDRESS, toBN("10"), {
             value: toBN("0"),
         })
@@ -65,7 +65,7 @@ describe.only("Deployment, Setup & Transfer", function () {
         // await consoleLimit(limit)
     })
 
-    it.only("Transfer ETH 1: Should transfer correctly", async function () {
+    it("Transfer ETH 1: Should transfer correctly", async function () {
         const balances = await getBalances(provider, wallet, account, user)
         const tx = Tx(user, "5")
 
@@ -89,7 +89,7 @@ describe.only("Deployment, Setup & Transfer", function () {
         // await getBalances(provider, wallet, account, user)
     })
 
-    it.only("Transfer ETH 2: Should revert due to spending limit", async function () {
+    it("Transfer ETH 2: Should revert due to spending limit", async function () {
         const balances = await getBalances(provider, wallet, account, user)
 
         const tx = Tx(user, "6")
@@ -114,7 +114,7 @@ describe.only("Deployment, Setup & Transfer", function () {
         // await getBalances(provider, wallet, account, user)
     })
 
-    it.only("Transfer ETH 3: Should revert first but succeed after the daily limit resets", async function () {
+    it("Transfer ETH 3: Should revert first but succeed after the daily limit resets", async function () {
         const balances = await getBalances(provider, wallet, account, user)
 
         const tx = Tx(user, "6")
@@ -151,7 +151,7 @@ describe.only("Deployment, Setup & Transfer", function () {
     })
 })
 
-describe.only("Spending Limit Updates to make a transfer", function () {
+describe("Spending Limit Updates to make a transfer", function () {
     beforeEach(async function () {
         await utils.sleep(SLEEP_TIME * 1000)
 
@@ -163,7 +163,7 @@ describe.only("Spending Limit Updates to make a transfer", function () {
         await txReceipt.wait()
     })
 
-    it.only("Should succeed after overwriting SpendLimit", async function () {
+    it("Should succeed after overwriting SpendLimit", async function () {
         const balances = await getBalances(provider, wallet, account, user)
 
         const tx1 = Tx(user, "15")
@@ -198,7 +198,7 @@ describe.only("Spending Limit Updates to make a transfer", function () {
         // await getBalances(provider, wallet, account, user)
     })
 
-    it.only("Should succeed after removing SpendLimit", async function () {
+    it("Should succeed after removing SpendLimit", async function () {
         const balances = await getBalances(provider, wallet, account, user)
 
         const tx1 = Tx(user, "30")
@@ -234,7 +234,7 @@ describe.only("Spending Limit Updates to make a transfer", function () {
     })
 })
 
-describe.only("Spending Limit Updates", function () {
+describe("Spending Limit Updates", function () {
     before(async function () {
         //await utils.sleep(SLEEP_TIME * 1000);
 
@@ -249,7 +249,7 @@ describe.only("Spending Limit Updates", function () {
         const txReceipt2 = await sendTx(provider, account, user, tx2)
     })
 
-    it.only("Should revert. Invalid update for setSpendingLimit", async function () {
+    it("Should revert. Invalid update for setSpendingLimit", async function () {
         const tx = await account.populateTransaction.setSpendingLimit(ETH_ADDRESS, toBN("100"), {
             value: toBN("0"),
             gasLimit: ethers.utils.hexlify(600000),
@@ -267,7 +267,7 @@ describe.only("Spending Limit Updates", function () {
         expect(limit.isEnabled).to.eql(true)
     })
 
-    it.only("Should revert. Invalid update for removeSpendingLimit", async function () {
+    it("Should revert. Invalid update for removeSpendingLimit", async function () {
         const tx2 = await account.populateTransaction.removeSpendingLimit(ETH_ADDRESS, {
             value: toBN("0"),
             gasLimit: ethers.utils.hexlify(600000),
