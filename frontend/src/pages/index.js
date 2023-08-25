@@ -83,10 +83,10 @@ const Home = () => {
         signer
     );
 
-    const signerAddress = await signer.getAddress();
-
+    const address = await signer.getAddress();
+    setSignerAddress(address);
     const abiCoder = new ethers.utils.AbiCoder();
-    const accountAddress = utils.create2Address(aaFactory.address, await aaFactory.aaBytecodeHash(), salt, abiCoder.encode(["address"], [signerAddress]));
+    const accountAddress = utils.create2Address(aaFactory.address, await aaFactory.aaBytecodeHash(), salt, abiCoder.encode(["address"], [address]));
 
     const aa = new ethers.Contract(accountAddress, AA_CONTRACT_ABI, signer);
     let owner;
@@ -142,7 +142,6 @@ const Home = () => {
     const tx = await aaFactory.deployAccount(salt, signerAddress);
     const receipt = await tx.wait();
     console.log('receipt :', receipt);
-    const signerAddress = await signer.getAddress()
     const abiCoder = new ethers.utils.AbiCoder();
     const accountAddress = utils.create2Address(aaFactory.address, await aaFactory.aaBytecodeHash(), salt, abiCoder.encode(["address"], [signerAddress]));
 
@@ -167,9 +166,9 @@ const Home = () => {
 
 
   useEffect(() => {
-    getSignerAddress(signer).then(address=>{
-      setSignerAddress(address);
-    });
+    // getSignerAddress(signer).then(address=>{
+    //   setSignerAddress(address);
+    // });
     fetchAA()
         .then(aa => {
           console.log('aa Info :', aa);
