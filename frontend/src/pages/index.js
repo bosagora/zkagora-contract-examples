@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useMemo, useCallback} from "react";
-import { utils, Contract, Wallet } from "zksync-web3";
+import {utils, Contract, Wallet, Web3Provider} from "zksync-web3";
 import { ethers } from "ethers";
 import useWeb3 from "../hooks/useWeb3";
 import useAA from "../hooks/useAA";
@@ -20,11 +20,29 @@ import {
   ERC20_GATED_PAYMASTER,
   ERC721_GATED_PAYMASTER,
   GASLESS_PAYMASTER,
-  ALLOWLIST_PAYMASTER, AAFACTORY_CONTRACT_ABI,
+  ALLOWLIST_PAYMASTER, AAFACTORY_CONTRACT_ABI, AA_CONTRACT_ABI,
 } from "../constants/consts";
 import InstructionsCard from "@/components/InstructionsCard";
 
+// const Limit = {
+//   limit: number;
+//   available: number;
+//   resetTime: number;
+//   isEnabled: boolean;
+// };
+//
+// const Data = {
+//   err: string;
+//   owner: string;
+//   balance: null | BigNumber;
+//   limit: null | Limit;
+// };
+
+
+const salt = ethers.constants.HashZero;
+const ETH_ADDRESS = "0x000000000000000000000000000000000000800A";
 const Home = () => {
+
   // State variables
   const [greeterContractInstance, setGreeterContractInstance] = useState(null);
   const [additionalContractInstance, setAdditionalContractInstance] =
@@ -43,30 +61,67 @@ const Home = () => {
   const [txDetails, setTxDetails] = useState(null);
   const [qualify, isQualify] = useState("");
   const { provider, signer, setProvider, setSigner, signerBalance } = useWeb3();
-  const { aaInfo } = useAA(provider, signer);
-  const [aa, setAA] = useState(false);
+  // const { fetchAA } = useAA(provider, signer);
+  const [existAA, setExistAA] = useState(false);
+  const [aa, setAA] = useState({});
   const [signerAddress, setSignerAddress] = useState('');
   const [loading, setLoading] = useState(true);
-  aaInfo()
-      .then(aa => {
-        console.log('aaInfo :', aa);
-        if(aa.err){
-          console.log('aa.err:', aa.err);
-          setAA(false);
-        }
-        else {setAA(true)}
-      });
 
 
-  const getSignerAddress = useCallback(
-      async (signer) => {
-        const address = signer ? await signer.getAddress() : '';
-        return address;
-      }, [signer]);
 
-  getSignerAddress(signer).then(address=>{
-    setSignerAddress(address);
-  });
+  const fetchAA = async ()=> {
+    if(!provider || !signer) {
+      return {
+        err: "null provider or signer",
+        value: "",
+      };
+    }
+
+    const aaFactory = new ethers.Contract(
+        '0x094499Df5ee555fFc33aF07862e43c90E6FEe501',
+        AAFACTORY_CONTRACT_ABI,
+        signer
+    );
+
+    const signerAddress = await signer.getAddress();
+
+    const abiCoder = new ethers.utils.AbiCoder();
+    const accountAddress = utils.create2Address(aaFactory.address, await aaFactory.aaBytecodeHash(), salt, abiCoder.encode(["address"], [signerAddress]));
+
+    const aa = new ethers.Contract(accountAddress, AA_CONTRACT_ABI, signer);
+    let owner;
+    try{
+      owner = await aa.owner();
+    } catch (e) {
+      return {
+        err: "Account has not been created yet.",
+        owner: null,
+        balance: null,
+        limit: null,
+      };
+    }
+    const limit = await aa.limits(ETH_ADDRESS);
+
+    const balance = await provider.getBalance(accountAddress);
+
+    if (limit > 0) {
+      return {
+        err: "",
+        owner,
+        accountAddress,
+        balance,
+        limit,
+      };
+    } else {
+      return {
+        err: "",
+        owner,
+        accountAddress,
+        balance,
+        limit: null,
+      };
+    }
+  };
 
   const createAA = async (provider, signer)=> {
     if( !provider || !signer) {
@@ -84,11 +139,10 @@ const Home = () => {
     console.log('signer :', signer)
     console.log('aaFactory :', aaFactory);
     console.log('signerAddress :', signerAddress);
-    const salt = ethers.constants.HashZero;
     const tx = await aaFactory.deployAccount(salt, signerAddress);
     const receipt = await tx.wait();
     console.log('receipt :', receipt);
-
+    const signerAddress = await signer.getAddress()
     const abiCoder = new ethers.utils.AbiCoder();
     const accountAddress = utils.create2Address(aaFactory.address, await aaFactory.aaBytecodeHash(), salt, abiCoder.encode(["address"], [signerAddress]));
 
@@ -105,6 +159,30 @@ const Home = () => {
     return 'success'
 
   }
+
+  const getSignerAddress = async (signer) => {
+        const address = signer ? await signer.getAddress() : '';
+        return address;
+      };
+
+
+  useEffect(() => {
+    getSignerAddress(signer).then(address=>{
+      setSignerAddress(address);
+    });
+    fetchAA()
+        .then(aa => {
+          console.log('aa Info :', aa);
+          if (aa.err) {
+            console.log('aa.err:', aa.err);
+            setExistAA(false);
+            setAA(null);
+          } else {
+            setExistAA(true);
+            setAA(aa);
+          }
+        });
+  }, [signer])
 
   const handleCreateAA = async () => {
     const ret = await createAA(provider, signer);
@@ -279,7 +357,19 @@ const Home = () => {
   return (
     <div className="flex flex-col min-h-screen py-2 mb-10">
       <AATitle />
-      {aa ? `aa owner: ${signerAddress} address: ${signerAddress}` : (<div className="flex flex-row">
+      {existAA ? (
+          <div>
+          <p className="text-green-600 ml-8">
+            {`owner: ${aa.owner}`}
+          </p>
+          <p className="text-green-600 ml-8">
+            {`address: ${aa.accountAddress}`}
+          </p>
+            <p className="text-green-600 ml-8">
+              {`balance: ${aa.balance.toString()}`}
+            </p>
+          </div>
+          ) : (<div className="flex flex-row">
         <Input
             placeholder="Greeter contract address 0x..."
             title="Enter Greeter contract address"

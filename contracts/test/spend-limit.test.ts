@@ -72,10 +72,10 @@ describe.only("Deployment, Setup & Transfer", function () {
         //await utils.sleep(SLEEP_TIME * 1000);
         const txReceipt = await sendTx(provider, account, user, tx)
 
-        // expect(await provider.getBalance(account.address)).to.be.closeTo(
-        //     balances.AccountETHBal.sub(toBN("5")),
-        //     toBN("0.01"),
-        // )
+        expect(await provider.getBalance(account.address)).to.be.closeTo(
+            balances.AccountETHBal.sub(toBN("5")),
+            toBN("0.01"),
+        )
         expect(await provider.getBalance(user.address)).to.eql(balances.UserETHBal.add(toBN("5")))
 
         const limit = await account.limits(ETH_ADDRESS)
