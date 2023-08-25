@@ -32,7 +32,6 @@ const useWeb3 = (selectedPaymaster) => {
         setSignerBalance(ethers.utils.formatEther(signerBalance));
       }
     };
-
     setupWeb3();
   }, [selectedPaymaster]);
 

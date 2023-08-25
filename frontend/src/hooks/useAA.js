@@ -9,10 +9,8 @@ const ETH_ADDRESS = "0x000000000000000000000000000000000000800A";
 
 const salt = ethers.constants.HashZero;
 const useAA = (provider, signer) => {
-  const aaInfo = useCallback( async ()=> {
-    console.log('signer :', signer)
+  const fetchAA = useCallback( async ()=> {
     if(!provider || !signer) {
-      console.log("null provider or signer")
       return {
         err: "null provider or signer",
         value: "",
@@ -26,56 +24,48 @@ const useAA = (provider, signer) => {
       );
 
     const signerAddress = await signer.getAddress();
-    console.log("signerAddress :", signerAddress)
 
     const abiCoder = new ethers.utils.AbiCoder();
     const accountAddress = utils.create2Address(aaFactory.address, await aaFactory.aaBytecodeHash(), salt, abiCoder.encode(["address"], [signerAddress]));
 
-    console.log('accountAddress :', accountAddress)
     const aa = new ethers.Contract(accountAddress, AA_CONTRACT_ABI, signer);
-    console.log('aa :', aa)
-    let limit;
+    let owner;
     try{
-      limit = await aa.limits(ETH_ADDRESS);
+      owner = await aa.owner();
     } catch (e) {
       return {
-        err: "null limit",
-        value: "",
+        err: "Account has not been created yet.",
+        owner: null,
+        balance: null,
+        limit: null,
       };
     }
-    console.log("Account limit: ", limit);
-    console.log("Available limit today: ", limit.available.toString());
-    console.log("Account limit value: ", limit.limit.toString());
+    const limit = await aa.limits(ETH_ADDRESS);
 
-    const owner = await aa.owner();
-    console.log('owner :', owner)
-    const balance = `${(await provider.getBalance(accountAddress)).toString()} WEI`;
+    const balance = await provider.getBalance(accountAddress);
 
     if (limit > 0) {
       return {
         err: "",
         owner,
+        accountAddress,
         balance,
-        plugins: [
-          {
-            name: "Enforced Limit",
-            limit: `${limit} WEI`,
-          },
-        ],
+        limit,
       };
     } else {
       return {
         err: "",
         owner,
+        accountAddress,
         balance,
-        plugins: [],
+        limit: null,
       };
     }
   }, [provider, signer]);
 
 
   return {
-    aaInfo
+    fetchAA
   };
 };
 
