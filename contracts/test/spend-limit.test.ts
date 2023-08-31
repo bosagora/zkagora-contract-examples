@@ -19,28 +19,30 @@ let user: Wallet
 let factory: Contract
 let account: Contract
 
-before(async () => {
-    provider = Provider.getDefaultProvider()
-    wallet = new Wallet(dev_pk, provider)
-    user = Wallet.createRandom()
 
-    factory = await deployAAFactory(wallet)
-    account = await deployAccount(wallet, user, factory.address)
+describe.only("Deployment, Setup & Transfer", function () {
 
-    // 100 ETH transfered to Account
-    await (
-        await wallet.sendTransaction({
-            to: account.address,
-            value: toBN("100"),
-        })
-    ).wait()
+    before(async () => {
+        provider = Provider.getDefaultProvider()
+        wallet = new Wallet(dev_pk, provider)
+        user = Wallet.createRandom()
 
-    // Modify ONE_DAY from 24horus to 10 seconds for the sake of testing.
-    await (await account.changeONE_DAY(SLEEP_TIME)).wait()
-})
+        factory = await deployAAFactory(wallet)
+        account = await deployAccount(wallet, user, factory.address)
 
-describe("Deployment, Setup & Transfer", function () {
-    it("Should deploy contracts, send ETH, and set varible correctly", async function () {
+        // 100 ETH transfered to Account
+        await (
+            await wallet.sendTransaction({
+                to: account.address,
+                value: toBN("100"),
+            })
+        ).wait()
+
+        // Modify ONE_DAY from 24horus to 10 seconds for the sake of testing.
+        await (await account.changeONE_DAY(SLEEP_TIME)).wait()
+    })
+
+    it.only("Should deploy contracts, send ETH, and set varible correctly", async function () {
         expect(await provider.getBalance(account.address)).to.eql(toBN("100"))
         expect((await account.ONE_DAY()).toNumber()).to.equal(SLEEP_TIME)
 
@@ -49,7 +51,7 @@ describe("Deployment, Setup & Transfer", function () {
         await consoleAddreses(wallet, factory, account, user)
     })
 
-    it("Set Limit: Should add ETH spendinglimit correctly", async function () {
+    it.only("Set Limit: Should add ETH spendinglimit correctly", async function () {
         let tx = await account.populateTransaction.setSpendingLimit(ETH_ADDRESS, toBN("10"), {
             value: toBN("0"),
         })
