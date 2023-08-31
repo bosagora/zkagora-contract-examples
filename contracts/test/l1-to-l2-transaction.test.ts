@@ -22,25 +22,26 @@ let wallet: Wallet;
 let deployer: Deployer;
 let contract: Contract;
 
-before(async function () {
-  // setup deployer
-  l1provider = new Provider(L1_RPC_ENDPOINT);
-  l2provider = new Provider(L2_RPC_ENDPOINT);
-  wallet = new Wallet(PRIVATE_KEY, l2provider, l1provider);
-  deployer = new Deployer(hre, wallet);
+describe("L1 to L2 Transaction", function () {
 
-  // deploy contracts
-  contract = await deployContract(deployer, "Greeter", ["Hi"]);
-  console.log(`contract was deployed to  ${contract.address}`);
-});
-describe.only("L1 to L2 Transaction", function () {
+  before(async function () {
+    // setup deployer
+    l1provider = new Provider(L1_RPC_ENDPOINT);
+    l2provider = new Provider(L2_RPC_ENDPOINT);
+    wallet = new Wallet(PRIVATE_KEY, l2provider, l1provider);
+    deployer = new Deployer(hre, wallet);
 
-  it.only("Should be Hi for greet", async function () {
+    // deploy contracts
+    contract = await deployContract(deployer, "Greeter", ["Hi"]);
+    console.log(`contract was deployed to  ${contract.address}`);
+  });
+
+  it("Should be Hi for greet", async function () {
     const msg = await contract.greet();
     expect(await contract.greet()).to.equal("Hi");
   });
 
-  it.only("should set new message correctly", async function () {
+  it("should set new message correctly", async function () {
     const l1GasPrice = await l2provider.getGasPrice();
     const message = `Updated at ${new Date().toUTCString()}`;
 

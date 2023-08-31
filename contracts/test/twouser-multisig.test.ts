@@ -20,28 +20,30 @@ let user2: Wallet
 let factory: Contract
 let account: Contract
 
-before(async () => {
-    provider = Provider.getDefaultProvider()
-    wallet = new Wallet(dev_pk, provider)
-    user1 = Wallet.createRandom()
-    user2 = Wallet.createRandom()
-
-    factory = await deployAAFactory(wallet)
-    account = await deployAccount(wallet, user1, user2, factory.address)
-    console.log('account.address :', account.address)
-    // 100 ETH transfered to Account
-    await (
-        await wallet.sendTransaction({
-            to: account.address,
-            value: toBN("100"),
-        })
-    ).wait()
-
-    // Modify ONE_DAY from 24horus to 10 seconds for the sake of testing.
-    await (await account.changeONE_DAY(SLEEP_TIME)).wait()
-})
 
 describe("Deployment, Setup & Transfer", function () {
+
+    before(async () => {
+        provider = Provider.getDefaultProvider()
+        wallet = new Wallet(dev_pk, provider)
+        user1 = Wallet.createRandom()
+        user2 = Wallet.createRandom()
+
+        factory = await deployAAFactory(wallet)
+        account = await deployAccount(wallet, user1, user2, factory.address)
+        console.log('account.address :', account.address)
+        // 100 ETH transfered to Account
+        await (
+            await wallet.sendTransaction({
+                to: account.address,
+                value: toBN("100"),
+            })
+        ).wait()
+
+        // Modify ONE_DAY from 24horus to 10 seconds for the sake of testing.
+        await (await account.changeONE_DAY(SLEEP_TIME)).wait()
+    })
+
     it("Should deploy contracts, send ETH, and set varible correctly", async function () {
         expect(await provider.getBalance(account.address)).to.eql(toBN("100"))
 
